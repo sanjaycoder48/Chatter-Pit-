@@ -1,13 +1,18 @@
-import { useState } from 'react'
-import './App.css'
+import { useState } from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import "./App.css";
+import FirstPage from "./assets/Fp.jsx";
+import Account from "./assets/id.jsx";
 
 function App() {
   return (
-    <div className="App">
-      <h1>Welcome to Chatter Pit</h1>
-      <p>Your Radix UI components are ready to use!</p>
-    </div>
-  )
+    <Router>
+      <Routes>
+        <Route path="/" element={<FirstPage/>}/>
+        <Route path="/Account" element={<Account/>}/>
+      </Routes>
+    </Router>
+  );
 }
 
-export default App
+export default App;
