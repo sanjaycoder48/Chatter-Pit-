@@ -1,1 +1,18 @@
 @import "tailwindcss";
+
+.App {
+  text-align: center;
+  padding: 2rem;
+  min-height: 100vh;
+  background-color: #f8fafc;
+}
+
+h1 {
+  color: #1e293b;
+  margin-bottom: 1rem;
+}
+
+p {
+  color: #64748b;
+  font-size: 1.1rem;
+}
