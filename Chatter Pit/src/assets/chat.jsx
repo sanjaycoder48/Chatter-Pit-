@@ -3,11 +3,20 @@ import { useNavigate } from "react-router-dom";
 import { MoreVertical } from "lucide-react";
 import * as Dialog from "@radix-ui/react-dialog";
 
+// ChatScope UI Kit
+import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
+import {
+  MainContainer,
+  ChatContainer,
+  MessageList,
+  Message,
+  MessageInput,
+} from "@chatscope/chat-ui-kit-react";
+
 function ChatPage() {
   const navigate = useNavigate();
   const [userId, setUserId] = useState("");
   const [messages, setMessages] = useState([]);
-  const [input, setInput] = useState("");
   const [otherId, setOtherId] = useState(""); // entered friend's ID
 
   useEffect(() => {
@@ -21,17 +30,18 @@ function ChatPage() {
     }
   }, [navigate]);
 
-  const handleSend = () => {
-    if (!input.trim()) return;
+  // send message
+  const handleSend = (text) => {
+    if (!text.trim()) return;
 
     setMessages((prev) => [
       ...prev,
-      { sender: "me", text: input },
-      { sender: "other", text: "Got it: " + input }, // demo reply
+      { sender: "me", text },
+      { sender: "other", text: "Got it: " + text }, // demo reply
     ]);
-    setInput("");
   };
 
+  // start a new chat
   const startNewChat = () => {
     if (!otherId.trim()) return;
     setMessages([{ sender: "other", text: `Connected with ${otherId} ✅` }]);
@@ -55,7 +65,7 @@ function ChatPage() {
       </header>
 
       {/* Chat area */}
-      <main className="flex-1 p-4 overflow-y-auto flex flex-col gap-3">
+      <main className="flex-1 overflow-hidden">
         {messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-neutral-500">
             <div className="w-20 h-20 rounded-full bg-neutral-800 flex items-center justify-center mb-4">
@@ -66,45 +76,33 @@ function ChatPage() {
             </p>
           </div>
         ) : (
-          messages.map((msg, index) => (
-            <div
-              key={index}
-              className={`flex ${
-                msg.sender === "me" ? "justify-end" : "justify-start"
-              }`}
-            >
-              <div
-                className={`px-3 py-2 rounded-xl max-w-xs text-sm ${
-                  msg.sender === "me"
-                    ? "bg-blue-600 text-white rounded-br-none"
-                    : "bg-neutral-800 text-neutral-200 rounded-bl-none"
-                }`}
-              >
-                {msg.text}
-              </div>
-            </div>
-          ))
+          <MainContainer>
+            <ChatContainer>
+              <MessageList>
+                {messages.map((msg, index) => (
+                  <Message
+                    key={index}
+                    model={{
+                      message: msg.text,
+                      sentTime: "just now",
+                      sender: msg.sender,
+                      direction: msg.sender === "me" ? "outgoing" : "incoming",
+                      position: "single",
+                    }}
+                  />
+                ))}
+              </MessageList>
+
+              {/* Typing area */}
+              <MessageInput
+                placeholder="Type a message..."
+                attachButton={false}
+                onSend={handleSend}
+              />
+            </ChatContainer>
+          </MainContainer>
         )}
       </main>
-
-      {/* Typing area (only if chat exists) */}
-      {messages.length > 0 && (
-        <footer className="p-3 border-t border-neutral-800 bg-neutral-900 flex gap-2">
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Type a message..."
-            className="flex-1 px-3 py-2 rounded-lg bg-neutral-800 text-white text-sm outline-none"
-          />
-          <button
-            onClick={handleSend}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-sm font-medium"
-          >
-            Send
-          </button>
-        </footer>
-      )}
 
       {/* Floating Add Button with Dialog */}
       {messages.length === 0 && (
@@ -152,6 +150,7 @@ function ChatPage() {
 }
 
 export default ChatPage;
+
 
 
 
