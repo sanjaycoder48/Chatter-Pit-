@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@chatscope/chat-ui-kit-react": "^2.1.1",
     "@radix-ui/themes": "^3.2.1",
     "lucide-react": "^0.540.0",
     "react-qr-code": "^2.0.18",
