@@ -5,16 +5,16 @@ function FirstPage() {
 
   return (
     <div className="min-h-screen bg-neutral-950 text-white flex flex-col">
-      {/* Header */}
       <header className="flex items-center justify-center bg-neutral-900 p-5 border-b border-neutral-800">
-        <h1 className="text-2xl font-bold tracking-wide">Welcome to Chatter Pit</h1>
+        <h1 className="text-2xl font-bold tracking-wide">
+          Welcome to Chatter Pit
+        </h1>
       </header>
 
-      {/* Hero */}
       <main className="flex-1 flex flex-col justify-center items-center p-6">
         <div className="max-w-md text-center flex flex-col gap-6">
           <h2 className="text-lg text-neutral-300">
-            A simple & secure way to chat without sharing personal details.
+            A simple and secure way to chat without sharing personal details.
           </h2>
 
           <button
@@ -26,13 +26,11 @@ function FirstPage() {
         </div>
       </main>
 
-      {/* Footer */}
       <footer className="p-3 border-t border-neutral-800 text-center text-sm text-neutral-500">
-        © 2025 Chatter Pit
+        (c) 2026 Chatter Pit
       </footer>
     </div>
   );
 }
 
 export default FirstPage;
-

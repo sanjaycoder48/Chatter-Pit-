@@ -1,12 +1,48 @@
-# React + Vite
+# Chatter Pit
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Chatter Pit is a privacy-first chat prototype built with React, Vite, Tailwind CSS, Radix UI, ChatScope, and QR code sharing.
 
-Currently, two official plugins are available:
+## Use Case
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+The app lets a user create a local Chatter Pit identity without entering personal information. The generated ID and pass key are stored in the browser with `localStorage`, and the profile page renders a QR/link that another user can open at `/u/{id}` to begin a chat.
 
-## Expanding the ESLint configuration
+This is currently a client-side demo. Messages are kept in React state and a simulated reply is returned after each send. There is no backend, authentication server, database, or real-time transport yet.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## App Flow
+
+- `/` introduces the product and sends the user to account setup.
+- `/Account` generates or displays the user's local ID, pass key, QR code, and share link.
+- `/ChatPage` opens the demo chat screen.
+- `/u/:peerId` opens the chat screen already connected to the shared ID.
+
+## Setup
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Run the local development server:
+
+```bash
+npm run dev
+```
+
+Build for production:
+
+```bash
+npm run build
+```
+
+Run lint checks:
+
+```bash
+npm run lint
+```
+
+## Notes
+
+- User IDs and pass keys are local browser values only.
+- QR codes encode the current origin plus `/u/{id}`.
+- To make this a production chat app, add a backend for accounts, encrypted message storage, and a real-time channel such as WebSocket or WebRTC.

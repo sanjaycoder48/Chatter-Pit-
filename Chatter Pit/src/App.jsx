@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import "./App.css";
 import FirstPage from "./assets/Fp.jsx";
@@ -9,9 +8,10 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<FirstPage/>}/>
-        <Route path="/Account" element={<Account/>}/>
-        <Route path="/ChatPage" element={<ChatPage/>}/>
+        <Route path="/" element={<FirstPage />} />
+        <Route path="/Account" element={<Account />} />
+        <Route path="/ChatPage" element={<ChatPage />} />
+        <Route path="/u/:peerId" element={<ChatPage />} />
       </Routes>
     </Router>
   );
