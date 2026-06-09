@@ -18,6 +18,10 @@ function getSocketUrl() {
     return import.meta.env.VITE_SOCKET_URL;
   }
 
+  if (window.location.port === "3001") {
+    return window.location.origin;
+  }
+
   return `${window.location.protocol}//${window.location.hostname}:3001`;
 }
 

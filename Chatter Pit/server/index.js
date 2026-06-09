@@ -1,6 +1,9 @@
 import express from "express";
 import { randomUUID } from "node:crypto";
 import { createServer } from "node:http";
+import { existsSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { Server } from "socket.io";
 
 const PORT = Number(process.env.CHATTER_PIT_PORT || 3001);
@@ -15,6 +18,9 @@ const io = new Server(httpServer, {
 });
 
 const roomMessages = new Map();
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const distPath = join(__dirname, "..", "dist");
+const indexPath = join(distPath, "index.html");
 
 function getPairRoom(userId, peerId) {
   return [userId, peerId].sort().join(":");
@@ -45,6 +51,19 @@ function joinPair(socket, userId, peerId) {
 app.get("/health", (_request, response) => {
   response.json({ ok: true });
 });
+
+if (existsSync(indexPath)) {
+  app.use(express.static(distPath));
+
+  app.use((request, response, next) => {
+    if (request.method !== "GET" || !request.accepts("html")) {
+      next();
+      return;
+    }
+
+    response.sendFile(indexPath);
+  });
+}
 
 io.on("connection", (socket) => {
   socket.on("user:online", ({ userId }) => {

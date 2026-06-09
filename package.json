@@ -5,7 +5,9 @@
     "dev": "npm --prefix \"Chatter Pit\" run dev",
     "build": "npm --prefix \"Chatter Pit\" run build",
     "lint": "npm --prefix \"Chatter Pit\" run lint",
-    "preview": "npm --prefix \"Chatter Pit\" run preview"
+    "preview": "npm --prefix \"Chatter Pit\" run preview",
+    "start": "npm --prefix \"Chatter Pit\" run start",
+    "serve": "npm --prefix \"Chatter Pit\" run serve"
   },
   "dependencies": {
     "@chatscope/chat-ui-kit-react": "^2.1.1",
