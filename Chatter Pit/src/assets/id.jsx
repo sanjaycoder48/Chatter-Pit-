@@ -1,10 +1,11 @@
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import QRCode from "react-qr-code";
 import { useEffect, useState } from "react";
 import { nanoid } from "nanoid";
 
 function Account() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [userId, setUserId] = useState("");
   const [passKey, setPassKey] = useState("");
 
@@ -28,6 +29,10 @@ function Account() {
   }
 
   const userUrl = `${window.location.origin}/u/${userId}`;
+  const pendingPeerId = new URLSearchParams(location.search).get("peer");
+  const nextRoute = pendingPeerId
+    ? `/u/${encodeURIComponent(pendingPeerId)}`
+    : "/ChatPage";
 
   return (
     <div className="min-h-screen bg-neutral-950 text-white flex flex-col">
@@ -65,7 +70,7 @@ function Account() {
 
           {/* Next Button */}
           <button
-            onClick={() => navigate("/ChatPage")}
+            onClick={() => navigate(nextRoute)}
             className="mt-4 px-6 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 transition-colors font-medium text-white shadow-md"
           >
             Go to Chat
