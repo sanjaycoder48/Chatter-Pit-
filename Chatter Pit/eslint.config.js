@@ -34,4 +34,11 @@ export default defineConfig([
       sourceType: 'module',
     },
   },
+  {
+    // Node-run config files use process, __dirname, etc.
+    files: ['vite.config.js', 'eslint.config.js'],
+    languageOptions: {
+      globals: globals.node,
+    },
+  },
 ])

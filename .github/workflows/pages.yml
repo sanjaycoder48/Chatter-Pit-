@@ -1,0 +1,66 @@
+name: Deploy PWA to GitHub Pages
+
+# Builds the Vite PWA and deploys it to GitHub Pages.
+# Pages hosts only the front-end; the Socket.IO realtime server must run
+# elsewhere and be set via the in-app "Realtime server URL" (Account screen).
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Required for actions/deploy-pages to publish via OIDC.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Let an in-progress run finish; queue at most one more.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: "Chatter Pit"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: "Chatter Pit/package-lock.json"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build (subpath base for Pages)
+        run: npm run build
+        env:
+          VITE_BASE: /Chatter-Pit-/
+
+      - name: SPA fallback for client-side routes
+        # GitHub Pages serves 404.html for unknown paths; pointing it at the
+        # app makes deep links like /Chatter-Pit-/u/<id> work on reload.
+        run: cp dist/index.html dist/404.html
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: "Chatter Pit/dist"
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

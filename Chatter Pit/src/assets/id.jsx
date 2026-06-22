@@ -37,7 +37,7 @@ function Account() {
   const publicBase = (
     import.meta.env.VITE_PUBLIC_APP_URL ||
     serverUrl ||
-    window.location.origin
+    window.location.origin + import.meta.env.BASE_URL
   ).replace(/\/+$/, "");
   const userUrl = `${publicBase}/u/${userId}`;
   const pendingPeerId = new URLSearchParams(location.search).get("peer");

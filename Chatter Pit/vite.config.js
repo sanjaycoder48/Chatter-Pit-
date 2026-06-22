@@ -3,8 +3,14 @@ import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import { VitePWA } from "vite-plugin-pwa";
 
+// Base public path. Defaults to "/" (Capacitor app, Node server, custom domain).
+// The GitHub Pages deploy sets VITE_BASE=/Chatter-Pit-/ so assets and routes
+// resolve under the project subpath.
+const base = process.env.VITE_BASE || "/";
+
 // https://vite.dev/config/
 export default defineConfig({
+  base,
   plugins: [
     react(),
     tailwindcss(),
@@ -19,33 +25,35 @@ export default defineConfig({
         name: "Chatter Pit",
         short_name: "Chatter Pit",
         description: "Private ID-based realtime chat, calls, and image sharing.",
-        id: "/",
-        start_url: "/",
-        scope: "/",
+        id: base,
+        start_url: base,
+        scope: base,
         display: "standalone",
         orientation: "portrait",
         background_color: "#0a0a0a",
         theme_color: "#111827",
         categories: ["social", "communication"],
+        // Relative src/url so they resolve against the manifest's base path
+        // (works at "/" and under the "/Chatter-Pit-/" Pages subpath).
         icons: [
-          { src: "/pwa-64x64.png", sizes: "64x64", type: "image/png" },
-          { src: "/pwa-192x192.png", sizes: "192x192", type: "image/png" },
+          { src: "pwa-64x64.png", sizes: "64x64", type: "image/png" },
+          { src: "pwa-192x192.png", sizes: "192x192", type: "image/png" },
           {
-            src: "/pwa-512x512.png",
+            src: "pwa-512x512.png",
             sizes: "512x512",
             type: "image/png",
             purpose: "any",
           },
           {
-            src: "/maskable-icon-512x512.png",
+            src: "maskable-icon-512x512.png",
             sizes: "512x512",
             type: "image/png",
             purpose: "maskable",
           },
         ],
         shortcuts: [
-          { name: "Open Chats", short_name: "Chats", url: "/ChatPage" },
-          { name: "My Chatter Pit ID", short_name: "My ID", url: "/Account" },
+          { name: "Open Chats", short_name: "Chats", url: "ChatPage" },
+          { name: "My Chatter Pit ID", short_name: "My ID", url: "Account" },
         ],
       },
       workbox: {
