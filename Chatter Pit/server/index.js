@@ -6,7 +6,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { Server } from "socket.io";
 
-const PORT = Number(process.env.CHATTER_PIT_PORT || 3001);
+const PORT = Number(process.env.CHATTER_PIT_PORT || process.env.PORT || 3001);
 const CLIENT_ORIGIN = process.env.CHATTER_PIT_CLIENT_ORIGIN || "*";
 
 const app = express();
@@ -15,9 +15,14 @@ const io = new Server(httpServer, {
   cors: {
     origin: CLIENT_ORIGIN,
   },
+  // Allow image attachments (sent as compressed data URLs) up to ~8 MB.
+  maxHttpBufferSize: 8e6,
 });
 
 const roomMessages = new Map();
+// Track which sockets belong to which user so calls can be routed and so the
+// caller learns immediately when the person they dialled is offline.
+const onlineUsers = new Map();
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const distPath = join(__dirname, "..", "dist");
 const indexPath = join(distPath, "index.html");
@@ -28,6 +33,10 @@ function getPairRoom(userId, peerId) {
 
 function getPeerFromRoom(room, userId) {
   return room.split(":").find((id) => id !== userId) || "";
+}
+
+function isUserOnline(userId) {
+  return (onlineUsers.get(userId)?.size || 0) > 0;
 }
 
 function joinPair(socket, userId, peerId) {
@@ -71,15 +80,24 @@ io.on("connection", (socket) => {
 
     socket.data.userId = userId;
     socket.join(`user:${userId}`);
+
+    const sockets = onlineUsers.get(userId) || new Set();
+    sockets.add(socket.id);
+    onlineUsers.set(userId, sockets);
   });
 
   socket.on("chat:join", ({ userId, peerId }) => {
     joinPair(socket, userId, peerId);
   });
 
-  socket.on("chat:message", ({ userId, peerId, text }) => {
+  socket.on("chat:message", ({ userId, peerId, text, image }) => {
     const cleanText = String(text || "").trim();
-    if (!userId || !peerId || !cleanText) return;
+    const cleanImage =
+      typeof image === "string" && image.startsWith("data:image/")
+        ? image
+        : "";
+
+    if (!userId || !peerId || (!cleanText && !cleanImage)) return;
 
     const room = getPairRoom(userId, peerId);
     const message = {
@@ -87,6 +105,7 @@ io.on("connection", (socket) => {
       sender: userId,
       peerId: getPeerFromRoom(room, userId),
       text: cleanText,
+      image: cleanImage,
       createdAt: new Date().toISOString(),
     };
 
@@ -96,6 +115,58 @@ io.on("connection", (socket) => {
 
     io.to(room).emit("chat:message", message);
     socket.to(`user:${peerId}`).emit("chat:invite", { from: userId });
+  });
+
+  // ---- WebRTC call signaling -------------------------------------------------
+  // The server is a blind relay: it forwards SDP offers/answers and ICE
+  // candidates to the target user's room and never inspects the media.
+
+  socket.on("call:offer", ({ to, from, callType, sdp }) => {
+    if (!to || !from || !sdp) return;
+
+    if (!isUserOnline(to)) {
+      socket.emit("call:unavailable", { to });
+      return;
+    }
+
+    socket.to(`user:${to}`).emit("call:offer", {
+      from,
+      callType: callType === "video" ? "video" : "audio",
+      sdp,
+    });
+  });
+
+  socket.on("call:answer", ({ to, from, sdp }) => {
+    if (!to || !sdp) return;
+    socket.to(`user:${to}`).emit("call:answer", { from, sdp });
+  });
+
+  socket.on("call:candidate", ({ to, from, candidate }) => {
+    if (!to || !candidate) return;
+    socket.to(`user:${to}`).emit("call:candidate", { from, candidate });
+  });
+
+  socket.on("call:reject", ({ to, from }) => {
+    if (!to) return;
+    socket.to(`user:${to}`).emit("call:reject", { from });
+  });
+
+  socket.on("call:end", ({ to, from }) => {
+    if (!to) return;
+    socket.to(`user:${to}`).emit("call:end", { from });
+  });
+
+  socket.on("disconnect", () => {
+    const userId = socket.data.userId;
+    if (!userId) return;
+
+    const sockets = onlineUsers.get(userId);
+    if (!sockets) return;
+
+    sockets.delete(socket.id);
+    if (sockets.size === 0) {
+      onlineUsers.delete(userId);
+    }
   });
 });
 

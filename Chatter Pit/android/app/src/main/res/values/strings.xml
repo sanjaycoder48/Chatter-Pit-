@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Chatter Pit</string>
+    <string name="title_activity_main">Chatter Pit</string>
+    <string name="package_name">dev.rightangle.chatterpit</string>
+    <string name="custom_url_scheme">dev.rightangle.chatterpit</string>
+</resources>
