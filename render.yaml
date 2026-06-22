@@ -1,0 +1,18 @@
+# Render Blueprint for the Chatter Pit realtime server.
+# Deploy: render.com -> New -> Blueprint -> pick this repo.
+# The server (Socket.IO + Express) reads the PORT that Render injects, so no
+# port config is needed here. No secrets are stored in this file.
+services:
+  - type: web
+    name: chatter-pit-server
+    runtime: node
+    # The app + server live in this subfolder of the repo.
+    rootDir: "Chatter Pit"
+    plan: free
+    # Build the web client (served statically by the server) and install deps.
+    buildCommand: npm install && npm run build
+    # Starts node server/index.js, which listens on process.env.PORT.
+    startCommand: npm run start
+    # Express exposes GET /health for Render's health checks.
+    healthCheckPath: /health
+    autoDeploy: true

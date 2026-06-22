@@ -43,6 +43,13 @@ jobs:
         run: npm run build
         env:
           VITE_BASE: /Chatter-Pit-/
+          # Bakes the realtime server URL into the build so visitors connect
+          # automatically (no manual "Realtime server URL" entry needed).
+          # Set this in: Settings -> Secrets and variables -> Actions ->
+          # Variables -> New repository variable, name VITE_SOCKET_URL, value
+          # = your Render HTTPS URL (e.g. https://chatter-pit-server.onrender.com).
+          # While unset it is empty and the app falls back to its normal logic.
+          VITE_SOCKET_URL: ${{ vars.VITE_SOCKET_URL }}
 
       - name: SPA fallback for client-side routes
         # GitHub Pages serves 404.html for unknown paths; pointing it at the
