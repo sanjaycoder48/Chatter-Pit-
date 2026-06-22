@@ -1,0 +1,62 @@
+name: Android Debug APK
+
+# Build an installable debug APK on every push and on manual runs.
+# Debug builds are signed with the auto-generated Android debug key, so no
+# release keystore or secrets are needed.
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build-debug-apk:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        # The app and the Capacitor android/ project live in this subfolder.
+        working-directory: "Chatter Pit"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        # Capacitor 8 CLI requires Node >= 22.
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: "Chatter Pit/package-lock.json"
+
+      - name: Set up Java 21
+        # Capacitor 8's Android library compiles with source release 21,
+        # so JDK 21 is required to build the project.
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build web app
+        run: npm run build
+
+      - name: Sync Capacitor Android project
+        run: npx cap sync android
+
+      - name: Build debug APK
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon --stacktrace
+
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: chatter-pit-debug-apk
+          path: "Chatter Pit/android/app/build/outputs/apk/debug/app-debug.apk"
+          if-no-files-found: error
+          retention-days: 30

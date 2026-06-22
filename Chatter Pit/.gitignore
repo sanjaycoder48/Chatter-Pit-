@@ -10,7 +10,13 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
+dev-dist
 *.local
+
+# Android release signing secrets — never commit these
+android/keystore.properties
+*.keystore
+*.jks
 
 # Editor directories and files
 .vscode/*
