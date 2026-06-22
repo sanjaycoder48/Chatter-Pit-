@@ -27,11 +27,13 @@ jobs:
           cache: npm
           cache-dependency-path: "Chatter Pit/package-lock.json"
 
-      - name: Set up Java 17
+      - name: Set up Java 21
+        # Capacitor 8's Android library compiles with source release 21,
+        # so JDK 21 is required to build the project.
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: "17"
+          java-version: "21"
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
